@@ -116,6 +116,6 @@
         state: restarted
 
     - name: restart-supervisor
-      supervisorctl:
-        name: worker
-        state: restarted
+      service:
+        name: supervisorctl
+        state: updated

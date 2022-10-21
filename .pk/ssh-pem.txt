@@ -1,0 +1,11 @@
+KEY PAIR
+
+criar chave:
+ssh-keygen -t rsa -b 4096 -m pem -f olw_kp
+
+
+Gerar .pem file
+openssl rsa -in olw_kp --outform pem > olw_kp.pem
+
+Permissao
+chmod 400 olw_kp.pem
