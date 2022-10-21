@@ -42,5 +42,20 @@ resource "aws_eip" "olw_web_eip" {
         Name = "olw_web_eip_${count.index}"
         Project = "olw"
     }
+
+    connection {
+        host    = self.public_ip
+        type    = "ssh"
+        user    = "ubuntu"
+        private_key = file("./.pk/olw_pk.pem")
+    }
+
+    provisioner "remote-exec" {
+        inline = ["echo 'built server!'"]
+    }
+
+    provisioner "local-exec"{
+    command = "echo ${aws_eip.olw_web_eip[count.index].public_dns} > ansible/hosts"
+  }
 }
 

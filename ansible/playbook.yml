@@ -1,0 +1,121 @@
+- hosts: all
+  become: true
+
+  tasks:
+    - name: Add ubuntu user to 'sudo' group
+      user:
+        name: ubuntu
+        group: sudo
+
+    - name: Install aptitude
+      apt:
+        name: aptitude
+        state: latest
+        update_cache: true
+    
+    - name: Update packages
+      apt:
+        upgrade: dist
+        update_cache: yes
+        cache_valid_time: 3600
+    
+    - name: Install NGINX
+      apt: 
+        name: nginx 
+        state: latest
+        update_cache: yes
+    
+    - name: Install Dependency packages
+      apt:
+        pkg:
+          - curl
+          - supervisor
+          - redis-server
+          - mysql-client
+          - lsb-release
+          - ca-certificates 
+          - apt-transport-https
+          - software-properties-common
+    
+    - name: Add PHP repository
+      apt_repository:
+        repo: 'ppa:ondrej/php'
+    
+    - name: Install PHP
+      apt:
+        pkg:
+          - php8.1
+          - php8.1-cli
+          - php8.1-common
+          - php8.1-mbstring
+          - php8.1-gd
+          - php8.1-intl
+          - php8.1-mysql
+          - php8.1-fpm
+          - php8.1-bcmath
+          - php8.1-curl
+          - php8.1-zip
+          - php8.1-dom
+          - php8.1-xml
+          - php8.1-redis
+
+    - name: Install NodeJS
+      apt:
+        name: nodejs
+        state: latest
+        update_cache: yes
+
+    - name: Install NPM
+      apt:
+        name: npm
+        state: latest
+        update_cache: yes
+    
+    - name: Install composer
+      shell: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+      args:
+        creates: /usr/local/bin/composer
+
+    - name: Configure Supervisor
+      template:
+        src: ./templates/supervisor.conf
+        dest: /etc/supervisor/conf.d/olwapp-worker.conf
+    
+    - name: Configure NGINX
+      template:
+        src: ./templates/nginx.conf
+        dest: /etc/nginx/nginx.conf
+    
+    - name: Configure VirtualHost
+      template:
+        src: ./templates/default
+        dest: /etc/nginx/sites-available/default
+      notify:
+        - restart-nginx
+    
+    - name: Configure PHP pool
+      copy:
+        src: ./templates/www.conf
+        dest: /etc/php/8.1/fpm/pool.d/www.conf
+        owner: root
+        group: root
+        mode: 0644
+    
+    - name: Define 'ubuntu' as var/www/html owner
+      file:
+        path: /var/www/html
+        state: directory
+        recurse: yes
+        owner: ubuntu
+        group: ubuntu
+
+  handlers:
+    - name: restart-nginx
+      service:
+        name: nginx
+        state: restarted
+
+    - name: restart-supervisor
+      supervisorctl:
+        name: worker
+        state: restarted

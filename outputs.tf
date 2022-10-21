@@ -12,13 +12,13 @@ output "web_public_dns" {
     depends_on = [aws_eip.olw_web_eip] 
 }
 
-# output "database_endpoint" {
-#     description = "The endpoint of the database"
-#     value = aws_db_instance.olw_database.address
-# }
+output "database_endpoint" {
+    description = "The endpoint of the database"
+    value = aws_db_instance.olw_database.address
+}
 
-# output "database_port" {
-#     description = "The port of the database"
-#     value = aws_db_instance.olw_database
-#     sensitive = true
-# }
+output "database_port" {
+    description = "The port of the database"
+    value = aws_db_instance.olw_database
+    sensitive = true
+}

@@ -19,7 +19,7 @@ resource "aws_subnet" "olw_public_subnet" {
     cidr_block = var.PUBLIC_SUBNET_CIDR_BLOCKS[count.index]
     availability_zone = data.aws_availability_zones.available.names[count.index]
     tags = {
-        Name = "olw_public_subnet${count.index}"
+        Name = "olw_public_subnet_${count.index}"
     }
 }
 
